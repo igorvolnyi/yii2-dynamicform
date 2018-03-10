@@ -10,6 +10,11 @@ dev-master
 - Enh: Remove "error/success" class css template to be cloned.
 - Bug: Fixes for: checkbox(), checkboxList(), radio() and radioList()
 
+version 2.0.3
+-------------
+**Date:** 10-Mar-2018
+- Enh: Updated composer.json ('symfony/dom-crawler': '~2.8|~3.0|~4.0' and 'symfony/css-selector': '~2.8|~3.0|~4.0').
+
 
 version 2.0.2
 -------------
