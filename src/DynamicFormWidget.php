@@ -205,7 +205,7 @@ class DynamicFormWidget extends \yii\base\Widget
         DynamicFormAsset::register($view);
 
         //disable old handlers
-        $js = 'jQuery("#' . $this->formId . '").off("click.dynamicForm");\n';
+        $js = 'jQuery("#' . $this->formId . '").off("click.dynamicForm");' . "\n";
 
         // add a click handler for the clone button
         $js .= 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->insertButton . '", function(e) {'. "\n";
