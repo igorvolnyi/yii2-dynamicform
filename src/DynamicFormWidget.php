@@ -261,7 +261,7 @@ class DynamicFormWidget extends \yii\base\Widget
      *
      * @param string $content
      */
-    private function removeItems($content)
+    protected function removeItems($content)
     {
         $crawler = new Crawler();
         $crawler->addHTMLContent($content, \Yii::$app->charset);
