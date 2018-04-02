@@ -23,6 +23,8 @@
         }
     };
 
+    var widgetOptionsMap = {};
+
     var events = {
         beforeInsert: 'beforeInsert',
         afterInsert: 'afterInsert',
@@ -192,7 +194,7 @@
         var widgetOptions = eval($elem.closest('div[data-dynamicform]').attr('data-dynamicform'));
         var id            = $elem.attr('id');
         var newID         = id;
-        var widgetRegexID = widgetOptions['regexID'] || regexID;
+        var widgetRegexID = _getRegExpId($elem);
 
         if (id !== undefined) {
             var matches = id.match(widgetRegexID);
@@ -240,7 +242,7 @@
             widgetsOptions[i] = eval($(this).attr('data-dynamicform'));
         });
 
-        var widgetRegexName = widgetsOptions['regexName'] || regexName;
+        var widgetRegexName = _getRegExpName($elem);
 
         if (name !== undefined) {
             var matches = name.match(widgetRegexName);
@@ -300,7 +302,7 @@
 
     var _fixFormValidaton = function(widgetOptions) {
         var widgetOptionsRoot = _getWidgetOptionsRoot(widgetOptions);
-        var widgetRegexID = widgetOptions['regexID'] || regexID;
+        var widgetRegexID = new RegExp(widgetOptions['regexID'], 'i') || regexID;
 
         $(widgetOptionsRoot.widgetBody).find('input, textarea, select').each(function() {
             var id   = $(this).attr('id');
@@ -477,6 +479,31 @@
                 }
             });
         }
+    };
+
+    var _getRegExpId = function($elem) {
+        var widgetRegexId = _getWidgetOptions($elem)['regexID'];
+        if (widgetRegexId) {
+            return new RegExp(widgetRegexId, 'i');
+        } else {
+            return regexID;
+        }
+    };
+
+    var _getRegExpName = function($elem) {
+        var widgetRegexName = _getWidgetOptions($elem)['regexName'];
+        if (widgetRegexName) {
+            return new RegExp(widgetRegexName, 'i');
+        } else {
+            return regexName;
+        }
+    };
+
+    var _getWidgetOptions = function($elem) {
+        if (!widgetOptionsMap[$elem]) {
+            widgetOptionsMap[$elem] = eval($elem.closest('div[data-dynamicform]').attr('data-dynamicform'));
+        }
+        return widgetOptionsMap[$elem];
     };
 
 })(window.jQuery);
