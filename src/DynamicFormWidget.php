@@ -233,11 +233,10 @@ class DynamicFormWidget extends \yii\base\Widget
     {
         DynamicFormAsset::register($view);
 
-        //disable old handlers
-        $js = 'jQuery("#' . $this->formId . '").off("click.' . $this->_JSEventNamespace . '");' . "\n";
+        $view->registerJs('jQuery("#' . $this->formId . '").off("click.' . $this->_JSEventNamespace . '");' . "\n", $view::POS_READY, 'dynamicModelDisableHandlers');
 
         // add a click handler for the clone button
-        $js .= 'jQuery("#' . $this->formId . '").on("click.' . $this->_JSEventNamespace . '", "' . $this->insertButton . '", function(e) {' . "\n";
+        $js = 'jQuery("#' . $this->formId . '").on("click.' . $this->_JSEventNamespace . '", "' . $this->insertButton . '", function(e) {' . "\n";
         $js .= "    e.preventDefault();\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").triggerHandler("beforeInsert", [jQuery(this)]);' . "\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").yiiDynamicForm("addItem", ' . $this->_hashVar . ", e, jQuery(this));\n";
