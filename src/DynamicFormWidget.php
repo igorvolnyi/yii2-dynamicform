@@ -76,14 +76,14 @@ class DynamicFormWidget extends \yii\base\Widget
      * @var string
      * @author Ihor Orel <rosso.aquila@gmail.com>
      */
-    public $regexId = '/^(.+)-(\d{1,})-(.+)$/i';
+    public $regexId = '^(.+)-(\d{1,})-(.+)$';
     /**
      * JS regular expression for element Name attribute
      * Can be changed for models with more then one nested level, like
      *      Mainmodel[0][attribute][0][submodelattribute]
      * @var string
      */
-    public $regexName = '/(^.+?)(\[\d+\])(\[.+\]$)/i';
+    public $regexName = '(^.+?)(\[\d+\])(\[.+\]$)';
 
     /**
      * @var string
