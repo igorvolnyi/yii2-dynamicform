@@ -232,23 +232,22 @@ class DynamicFormWidget extends \yii\base\Widget
         //disable old handlers
         $js = 'jQuery("#' . $this->formId . '").off("click.dynamicForm");' . "\n";
 
+        $js .= 'jQuery("#' . $this->formId . '").yiiDynamicForm(' . $this->_hashVar . ');' . "\n";
+
         // add a click handler for the clone button
         $js .= 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->insertButton . '", function(e) {' . "\n";
         $js .= "    e.preventDefault();\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").triggerHandler("beforeInsert", [jQuery(this)]);' . "\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").yiiDynamicForm("addItem", ' . $this->_hashVar . ", e, jQuery(this));\n";
         $js .= "});\n";
-        $view->registerJs($js, $view::POS_READY);
 
         // add a click handler for the remove button
-        $js = 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->deleteButton . '", function(e) {' . "\n";
+        $js .= 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->deleteButton . '", function(e) {' . "\n";
         $js .= "    e.preventDefault();\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").yiiDynamicForm("deleteItem", ' . $this->_hashVar . ", e, jQuery(this));\n";
         $js .= "});\n";
-        $view->registerJs($js, $view::POS_READY);
 
-        $js = 'jQuery("#' . $this->formId . '").yiiDynamicForm(' . $this->_hashVar . ');' . "\n";
-        $view->registerJs($js, $view::POS_LOAD);
+        $view->registerJs($js, $view::POS_READY);
     }
 
     /**
