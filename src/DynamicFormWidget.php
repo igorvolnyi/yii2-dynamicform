@@ -101,6 +101,10 @@ class DynamicFormWidget extends \yii\base\Widget
      * @var string the Json encoded options.
      */
     private $_encodedOptions = '';
+    /**
+     * @var string
+     */
+    private $_JSEventNamespace = 'dynamicForm';
 
     /**
      * Initializes the widget.
@@ -230,24 +234,24 @@ class DynamicFormWidget extends \yii\base\Widget
         DynamicFormAsset::register($view);
 
         //disable old handlers
-        $js = 'jQuery("#' . $this->formId . '").off("click.dynamicForm");' . "\n";
-
-        $js .= 'jQuery("#' . $this->formId . '").yiiDynamicForm(' . $this->_hashVar . ');' . "\n";
+        $js = 'jQuery("#' . $this->formId . '").off("click.' . $this->_JSEventNamespace . '");' . "\n";
 
         // add a click handler for the clone button
-        $js .= 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->insertButton . '", function(e) {' . "\n";
+        $js .= 'jQuery("#' . $this->formId . '").on("click.' . $this->_JSEventNamespace . '", "' . $this->insertButton . '", function(e) {' . "\n";
         $js .= "    e.preventDefault();\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").triggerHandler("beforeInsert", [jQuery(this)]);' . "\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").yiiDynamicForm("addItem", ' . $this->_hashVar . ", e, jQuery(this));\n";
         $js .= "});\n";
 
         // add a click handler for the remove button
-        $js .= 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->deleteButton . '", function(e) {' . "\n";
+        $js .= 'jQuery("#' . $this->formId . '").on("click.' . $this->_JSEventNamespace . '", "' . $this->deleteButton . '", function(e) {' . "\n";
         $js .= "    e.preventDefault();\n";
         $js .= '    jQuery(".' . $this->widgetContainer . '").yiiDynamicForm("deleteItem", ' . $this->_hashVar . ", e, jQuery(this));\n";
         $js .= "});\n";
 
         $view->registerJs($js, $view::POS_READY);
+
+        $view->registerJs('jQuery("#' . $this->formId . '").yiiDynamicForm(' . $this->_hashVar . ');' . "\n", $view::POS_LOAD);
     }
 
     /**
