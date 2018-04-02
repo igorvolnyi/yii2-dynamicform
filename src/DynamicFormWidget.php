@@ -28,7 +28,7 @@ class DynamicFormWidget extends \yii\base\Widget
      * @var string
      */
     public $widgetContainer;
-     /**
+    /**
      * @var string
      */
     public $widgetBody;
@@ -44,7 +44,7 @@ class DynamicFormWidget extends \yii\base\Widget
      * @var string
      */
     public $insertButton;
-     /**
+    /**
      * @var string
      */
     public $deleteButton;
@@ -52,7 +52,7 @@ class DynamicFormWidget extends \yii\base\Widget
      * @var string 'bottom' or 'top';
      */
     public $insertPosition = 'bottom';
-     /**
+    /**
      * @var Model|ActiveRecord the model used for the form
      */
     public $model;
@@ -68,6 +68,23 @@ class DynamicFormWidget extends \yii\base\Widget
      * @var integer
      */
     public $min = 1;
+    /**
+     * JS regular expression for element ID
+     * Can be changed for models with more then one nested level, like
+     *      mainmodel-0-attribute-0-submodelattribute
+     *
+     * @var string
+     * @author Ihor Orel <rosso.aquila@gmail.com>
+     */
+    public $regexId = '/^(.+)-(\d{1,})-(.+)$/i';
+    /**
+     * JS regular expression for element Name attribute
+     * Can be changed for models with more then one nested level, like
+     *      Mainmodel[0][attribute][0][submodelattribute]
+     * @var string
+     */
+    public $regexName = '/(^.+?)(\[\d+\])(\[.+\]$)/i';
+
     /**
      * @var string
      */
@@ -110,7 +127,7 @@ class DynamicFormWidget extends \yii\base\Widget
         if (empty($this->formId)) {
             throw new InvalidConfigException("The 'formId' property must be set.");
         }
-        if (empty($this->insertPosition) || ! in_array($this->insertPosition, $this->_insertPositions)) {
+        if (empty($this->insertPosition) || !in_array($this->insertPosition, $this->_insertPositions)) {
             throw new InvalidConfigException("Invalid configuration to property 'insertPosition' (allowed values: 'bottom' or 'top')");
         }
         if (empty($this->formFields) || !is_array($this->formFields)) {
@@ -126,18 +143,26 @@ class DynamicFormWidget extends \yii\base\Widget
     protected function initOptions()
     {
         $this->_options['widgetContainer'] = $this->widgetContainer;
-        $this->_options['widgetBody']      = $this->widgetBody;
-        $this->_options['widgetItem']      = $this->widgetItem;
-        $this->_options['limit']           = $this->limit;
-        $this->_options['insertButton']    = $this->insertButton;
-        $this->_options['deleteButton']    = $this->deleteButton;
-        $this->_options['insertPosition']  = $this->insertPosition;
-        $this->_options['formId']          = $this->formId;
-        $this->_options['min']             = $this->min;
-        $this->_options['fields']          = [];
+        $this->_options['widgetBody'] = $this->widgetBody;
+        $this->_options['widgetItem'] = $this->widgetItem;
+        $this->_options['limit'] = $this->limit;
+        $this->_options['insertButton'] = $this->insertButton;
+        $this->_options['deleteButton'] = $this->deleteButton;
+        $this->_options['insertPosition'] = $this->insertPosition;
+        $this->_options['formId'] = $this->formId;
+        $this->_options['min'] = $this->min;
+        $this->_options['fields'] = [];
+
+        if ($this->regexId) {
+            $this->_options['regexID'] = $this->regexId;
+        }
+
+        if ($this->regexName) {
+            $this->_options['regexName'] = $this->regexName;
+        }
 
         foreach ($this->formFields as $field) {
-             $this->_options['fields'][] = [
+            $this->_options['fields'][] = [
                 'id' => Html::getInputId($this->model, '[{}]' . $field),
                 'name' => Html::getInputName($this->model, '[{}]' . $field)
             ];
@@ -208,21 +233,21 @@ class DynamicFormWidget extends \yii\base\Widget
         $js = 'jQuery("#' . $this->formId . '").off("click.dynamicForm");' . "\n";
 
         // add a click handler for the clone button
-        $js .= 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->insertButton . '", function(e) {'. "\n";
+        $js .= 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->insertButton . '", function(e) {' . "\n";
         $js .= "    e.preventDefault();\n";
-        $js .= '    jQuery(".' .  $this->widgetContainer . '").triggerHandler("beforeInsert", [jQuery(this)]);' . "\n";
-        $js .= '    jQuery(".' .  $this->widgetContainer . '").yiiDynamicForm("addItem", '. $this->_hashVar . ", e, jQuery(this));\n";
+        $js .= '    jQuery(".' . $this->widgetContainer . '").triggerHandler("beforeInsert", [jQuery(this)]);' . "\n";
+        $js .= '    jQuery(".' . $this->widgetContainer . '").yiiDynamicForm("addItem", ' . $this->_hashVar . ", e, jQuery(this));\n";
         $js .= "});\n";
         $view->registerJs($js, $view::POS_READY);
 
         // add a click handler for the remove button
-        $js = 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->deleteButton . '", function(e) {'. "\n";
+        $js = 'jQuery("#' . $this->formId . '").on("click.dynamicForm", "' . $this->deleteButton . '", function(e) {' . "\n";
         $js .= "    e.preventDefault();\n";
-        $js .= '    jQuery(".' .  $this->widgetContainer . '").yiiDynamicForm("deleteItem", '. $this->_hashVar . ", e, jQuery(this));\n";
+        $js .= '    jQuery(".' . $this->widgetContainer . '").yiiDynamicForm("deleteItem", ' . $this->_hashVar . ", e, jQuery(this));\n";
         $js .= "});\n";
         $view->registerJs($js, $view::POS_READY);
 
-        $js = 'jQuery("#' . $this->formId . '").yiiDynamicForm(' . $this->_hashVar .');' . "\n";
+        $js = 'jQuery("#' . $this->formId . '").yiiDynamicForm(' . $this->_hashVar . ');' . "\n";
         $view->registerJs($js, $view::POS_LOAD);
     }
 

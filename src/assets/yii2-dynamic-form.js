@@ -8,9 +8,9 @@
 (function ($) {
     var pluginName = 'yiiDynamicForm';
 
-    var regexID = /^(.+?)([-\d-]{1,})(.+)$/i;
+    var regexID = /^(.+)-(\d.+)-(.+)$/i;
 
-    var regexName = /(^.+?)([\[\d{1,}\]]{1,})(\[.+\]$)/i;
+    var regexName = /(^.+?)(\[\d+\])(\[.+\]$)/i;
 
     $.fn.yiiDynamicForm = function (method) {
         if (methods[method]) {
@@ -81,7 +81,7 @@
             } else if($(this).is('select')) {
                 $(this).find('option:selected').removeAttr("selected");
             } else {
-                $(this).val(''); 
+                $(this).val('');
             }
         });
 
@@ -192,14 +192,15 @@
         var widgetOptions = eval($elem.closest('div[data-dynamicform]').attr('data-dynamicform'));
         var id            = $elem.attr('id');
         var newID         = id;
+        var widgetRegexID = widgetOptions['regexID'] || regexID;
 
         if (id !== undefined) {
-            var matches = id.match(regexID);
+            var matches = id.match(widgetRegexID);
             if (matches && matches.length === 4) {
                 matches[2] = matches[2].substring(1, matches[2].length - 1);
                 var identifiers = matches[2].split('-');
                 identifiers[0] = index;
-                
+
                 if (identifiers.length > 1) {
                     var widgetsOptions = [];
                     $elem.parents('div[data-dynamicform]').each(function(i){
@@ -225,7 +226,7 @@
                 $(this).removeClass('field-' + id).addClass('field-' + newID);
             });
             // update "for" attribute
-            $elem.closest(widgetOptions.widgetItem).find("label[for='" + id + "']").attr('for',newID); 
+            $elem.closest(widgetOptions.widgetItem).find("label[for='" + id + "']").attr('for',newID);
         }
 
         return newID;
@@ -234,8 +235,15 @@
     var _updateAttrName = function($elem, index) {
         var name = $elem.attr('name');
 
+        var widgetsOptions = [];
+        $elem.parents('div[data-dynamicform]').each(function(i){
+            widgetsOptions[i] = eval($(this).attr('data-dynamicform'));
+        });
+
+        var widgetRegexName = widgetsOptions['regexName'] || regexName;
+
         if (name !== undefined) {
-            var matches = name.match(regexName);
+            var matches = name.match(widgetRegexName);
 
             if (matches && matches.length === 4) {
                 matches[2] = matches[2].replace(/\]\[/g, "-").replace(/\]|\[/g, '');
@@ -243,11 +251,6 @@
                 identifiers[0] = index;
 
                 if (identifiers.length > 1) {
-                    var widgetsOptions = [];
-                    $elem.parents('div[data-dynamicform]').each(function(i){
-                        widgetsOptions[i] = eval($(this).attr('data-dynamicform'));
-                    });
-
                     widgetsOptions = widgetsOptions.reverse();
                     for (var i = identifiers.length - 1; i >= 1; i--) {
                         identifiers[i] = $elem.closest(widgetsOptions[i].widgetItem).index();
@@ -297,6 +300,7 @@
 
     var _fixFormValidaton = function(widgetOptions) {
         var widgetOptionsRoot = _getWidgetOptionsRoot(widgetOptions);
+        var widgetRegexID = widgetOptions['regexID'] || regexID;
 
         $(widgetOptionsRoot.widgetBody).find('input, textarea, select').each(function() {
             var id   = $(this).attr('id');
@@ -304,7 +308,7 @@
 
             if (id !== undefined && name !== undefined) {
                 currentWidgetOptions = eval($(this).closest('div[data-dynamicform]').attr('data-dynamicform'));
-                var matches = id.match(regexID);
+                var matches = id.match(widgetRegexID);
 
                 if (matches && matches.length === 4) {
                     matches[2]      = matches[2].substring(1, matches[2].length - 1);
