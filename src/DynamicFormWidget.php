@@ -250,7 +250,25 @@ class DynamicFormWidget extends \yii\base\Widget
 
         $view->registerJs($js, $view::POS_READY);
 
-        $view->registerJs('jQuery("#' . $this->formId . '").yiiDynamicForm(' . $this->_hashVar . ');' . "\n", $view::POS_LOAD);
+        $js = <<<JS
+            function defer(condition, method) {
+                if (condition()) {
+                    method();
+                } else {
+                    setTimeout(function() { defer(condition, method) }, 10);
+                }
+            }
+JS;
+        $view->registerJs($js, $view::POS_HEAD);
+
+
+        $js = <<<"JS"
+            defer(
+                function() { return !!(jQuery().yiiDynamicForm && jQuery("#$this->formId").yiiActiveForm('data')); }, 
+                function() { jQuery("#$this->formId").yiiDynamicForm($this->_hashVar); }
+            );
+JS;
+        $view->registerJs($js, $view::POS_LOAD);
     }
 
     /**
