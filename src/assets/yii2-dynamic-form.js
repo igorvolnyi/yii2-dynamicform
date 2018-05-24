@@ -460,18 +460,29 @@
                     $(this).unbind();
                     _restoreKrajeeDepdrop($(this));
                 }
-
-                $.when($('#' + id).select2(configSelect2)).done(initS2Loading(id, '.select2-container--krajee'));
+                var s2LoadingFunc = typeof initSelect2Loading != 'undefined' ? initSelect2Loading : initS2Loading;
+                var s2OpenFunc = typeof initSelect2DropStyle != 'undefined' ? initSelect2Loading : initS2Loading;
+                $.when($('#' + id).select2(configSelect2)).done(initS2Loading(id));
 
                 var kvClose = 'kv_close_' + id.replace(/\-/g, '_');
+    
+                $('#' + id).on('select2-open', function() {
+                    initS2Open(id)
+                });
 
                 $('#' + id).on('select2:unselect', function() {
                     window[kvClose] = true;
                 });
-
-               if (configDepdrop) {
-                    var loadingText = (configDepdrop.loadingText) ? configDepdrop.loadingText : 'Loading ...';
-                    initDepdropS2(id, loadingText);
+    
+                if ($(this).attr('data-krajee-depdrop')) {
+                    $(this).on('depdrop.beforeChange', function(e,i,v) {
+                        var configDepdrop = eval($(this).attr('data-krajee-depdrop'));
+                        var loadingText = (configDepdrop.loadingText)? configDepdrop.loadingText : 'Loading ...';
+                        $('#' + id).select2('data', {text: loadingText});
+                    });
+                    $(this).on('depdrop.change', function(e,i,v,c) {
+                        $('#' + id).select2('val', $('#' + id).val());
+                    });
                 }
             });
         }
